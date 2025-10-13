@@ -19,15 +19,15 @@ services:
     volumes:
       - ./data:/app/data:rw
       - /var/run/docker.sock:/var/run/docker.sock:rw
-      - ./data/uploads:/app/uploads:rw
-      - ./data/jobs:/app/jobs:rw
-      - ./data/outputs:/app/outputs:rw
+      - ./data/uploads:/app/data/uploads:rw
+      - ./data/jobs:/app/data/jobs:rw
+      - ./data/outputs:/app/data/outputs:rw
     environment:
       - DATABASE_URL=sqlite:////app/data/app.db
       - REDIS_URL=redis://redis:6379
-      - UPLOAD_DIR=/app/uploads
-      - JOBS_DIR=/app/jobs
-      - OUTPUTS_DIR=/app/outputs
+      - UPLOAD_DIR=/data/uploads
+      - JOBS_DIR=/data/jobs
+      - OUTPUTS_DIR=/data/outputs
       - DOCKER_HOST=unix:///var/run/docker.sock
     depends_on:
       - redis
@@ -54,9 +54,9 @@ services:
     environment:
       - DATABASE_URL=sqlite:///./data/app.db
       - REDIS_URL=redis://redis:6379
-      - UPLOAD_DIR=/app/data/uploads
-      - JOBS_DIR=/app/data/jobs
-      - OUTPUTS_DIR=/app/data/outputs
+      - UPLOAD_DIR=/data/uploads
+      - JOBS_DIR=/data/jobs
+      - OUTPUTS_DIR=/data/outputs
       - DOCKER_HOST=unix:///var/run/docker.sock
     depends_on:
       - redis

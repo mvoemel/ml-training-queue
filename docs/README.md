@@ -202,7 +202,7 @@ Click "Manage Users" to:
 
 ### Environment Variables
 
-Edit `docker-compose.yml` to change:
+Edit `compose.yml` to change:
 
 - `DATABASE_URL`: Database connection string
 - `REDIS_URL`: Redis connection string
