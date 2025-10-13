@@ -27,7 +27,6 @@ export interface Job {
   user_id: number;
   status: string;
   gpu_id: number;
-  cpu_cores: number;
   created_at: string;
   started_at: string | null;
   completed_at: string | null;

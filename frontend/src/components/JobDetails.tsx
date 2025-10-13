@@ -92,7 +92,7 @@ function JobDetails({ onLogout }: JobDetailsProps) {
       try {
         await jobAPI.cancelJob(Number(jobId));
         loadJob();
-      } catch (err) {
+      } catch {
         alert("Error canceling job");
       }
     }
@@ -132,7 +132,9 @@ function JobDetails({ onLogout }: JobDetailsProps) {
           <button onClick={() => navigate("/")} className="back-btn">
             ← Back
           </button>
-          <h1>Job: {job.name}</h1>
+          <h1>
+            Job #{job.id}: {job.name}
+          </h1>
         </div>
         <button onClick={onLogout}>Logout</button>
       </header>
@@ -153,10 +155,6 @@ function JobDetails({ onLogout }: JobDetailsProps) {
             <div>
               <label>GPU</label>
               <span>GPU {job.gpu_id}</span>
-            </div>
-            <div>
-              <label>CPU Cores</label>
-              <span>{job.cpu_cores}</span>
             </div>
             <div>
               <label>Created</label>

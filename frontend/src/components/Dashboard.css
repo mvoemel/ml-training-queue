@@ -63,8 +63,8 @@
 .status-available {
   display: inline-block;
   padding: 4px 12px;
-  background: #16653444;
-  color: #dcfce7;
+  background: #03762f75;
+  color: #0ef860;
   border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
@@ -74,8 +74,8 @@
 .status-busy {
   display: inline-block;
   padding: 4px 12px;
-  background: #991b1b44;
-  color: #fee2e2;
+  background: #8134047f;
+  color: #fb8f0a;
   border-radius: 12px;
   font-size: 12px;
   font-weight: 500;

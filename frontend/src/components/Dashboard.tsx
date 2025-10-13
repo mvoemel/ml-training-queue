@@ -44,7 +44,7 @@ function Dashboard({ onLogout }: DashboardProps) {
       try {
         await jobAPI.cancelJob(jobId);
         loadData();
-      } catch (err) {
+      } catch {
         alert("Error canceling job");
       }
     }
@@ -119,7 +119,6 @@ function Dashboard({ onLogout }: DashboardProps) {
                   <th>Name</th>
                   <th>Status</th>
                   <th>GPU</th>
-                  <th>CPU Cores</th>
                   <th>Created</th>
                   <th>Actions</th>
                 </tr>
@@ -138,7 +137,6 @@ function Dashboard({ onLogout }: DashboardProps) {
                       </span>
                     </td>
                     <td>{job.gpu_id}</td>
-                    <td>{job.cpu_cores}</td>
                     <td>{new Date(job.created_at).toLocaleString()}</td>
                     <td onClick={(e) => e.stopPropagation()}>
                       {job.status === "completed" && (
