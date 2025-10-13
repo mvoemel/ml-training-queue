@@ -1,0 +1,81 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:8000
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data:rw
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ./data/uploads:/app/uploads:rw
+      - ./data/jobs:/app/jobs:rw
+      - ./data/outputs:/app/outputs:rw
+    environment:
+      - DATABASE_URL=sqlite:////app/data/app.db
+      - REDIS_URL=redis://redis:6379
+      - UPLOAD_DIR=/app/uploads
+      - JOBS_DIR=/app/jobs
+      - OUTPUTS_DIR=/app/outputs
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    depends_on:
+      - redis
+    user: root
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: python -m app.workers.training_worker
+    volumes:
+      - ./data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ./data/uploads:/app/data/uploads
+      - ./data/jobs:/app/data/jobs
+      - ./data/outputs:/app/data/outputs
+    environment:
+      - DATABASE_URL=sqlite:///./data/app.db
+      - REDIS_URL=redis://redis:6379
+      - UPLOAD_DIR=/app/data/uploads
+      - JOBS_DIR=/app/data/jobs
+      - OUTPUTS_DIR=/app/data/outputs
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    depends_on:
+      - redis
+      - backend
+    user: root
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:

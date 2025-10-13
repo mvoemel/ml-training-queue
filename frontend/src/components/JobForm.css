@@ -1,0 +1,65 @@
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.file-info {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.upload-progress {
+  margin: 20px 0;
+}
+
+.progress-bar {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #2563eb;
+  transition: width 0.3s;
+}
+
+.upload-progress p {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.form-description {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+code {
+  background-color: #f5f5f7;
+  color: #d63384;
+  padding: 0.2em 0.4em;
+  border-radius: 6px;
+  font-size: 0.95em;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border: 1px solid #e0e0e0;
+}
