@@ -4,9 +4,9 @@
 }
 
 .dashboard header {
-  background: white;
+  background: #1f1f1f;
   padding: 20px 40px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.05);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -15,7 +15,7 @@
 
 .dashboard header h1 {
   font-size: 24px;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .header-buttons {
@@ -33,7 +33,7 @@
 .gpu-overview h2,
 .jobs-section h2 {
   margin-bottom: 16px;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .gpu-grid {
@@ -43,28 +43,28 @@
 }
 
 .gpu-card {
-  background: white;
+  background: #1f1f1f;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.05);
 }
 
 .gpu-card h3 {
   font-size: 18px;
   margin-bottom: 8px;
-  color: #2563eb;
+  color: #3b82f6;
 }
 
 .gpu-card p {
   margin: 4px 0;
-  color: #666;
+  color: #aaa;
 }
 
 .status-available {
   display: inline-block;
   padding: 4px 12px;
-  background: #dcfce7;
-  color: #166534;
+  background: #16653444;
+  color: #dcfce7;
   border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
@@ -74,8 +74,8 @@
 .status-busy {
   display: inline-block;
   padding: 4px 12px;
-  background: #fee2e2;
-  color: #991b1b;
+  background: #991b1b44;
+  color: #fee2e2;
   border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
@@ -85,13 +85,13 @@
 .no-jobs {
   text-align: center;
   padding: 40px;
-  color: #666;
+  color: #aaa;
 }
 
 .jobs-table {
-  background: white;
+  background: #1f1f1f;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.05);
   overflow: hidden;
 }
 
@@ -101,20 +101,20 @@
 }
 
 .jobs-table thead {
-  background: #f9fafb;
+  background: #2a2a2a;
 }
 
 .jobs-table th {
   text-align: left;
   padding: 12px 16px;
   font-weight: 600;
-  color: #374151;
+  color: #e0e0e0;
   font-size: 14px;
 }
 
 .jobs-table td {
   padding: 12px 16px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #333;
   font-size: 14px;
 }
 
@@ -124,7 +124,7 @@
 }
 
 .jobs-table tbody tr:hover {
-  background: #f9fafb;
+  background: #2a2a2a;
 }
 
 .status-badge {

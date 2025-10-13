@@ -10,8 +10,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #f5f5f5;
-  color: #333;
+  background: #121212;
+  color: #e0e0e0;
 }
 
 button {
@@ -27,7 +27,7 @@ button {
 
 button:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
 }
 
 button:disabled {
@@ -36,17 +36,17 @@ button:disabled {
 }
 
 button.primary {
-  background: #2563eb;
-  color: white;
+  background: #3b82f6;
+  color: #fff;
 }
 
 button.primary:hover:not(:disabled) {
-  background: #1d4ed8;
+  background: #2563eb;
 }
 
 button.danger {
-  background: #dc2626;
-  color: white;
+  background: #ef4444;
+  color: #fff;
 }
 
 button.danger:hover:not(:disabled) {
@@ -59,12 +59,13 @@ button.small {
 }
 
 button:not(.primary):not(.danger) {
-  background: white;
-  border: 1px solid #ddd;
+  background: #1f1f1f;
+  color: #fff;
+  border: 1px solid #333;
 }
 
 button:not(.primary):not(.danger):hover:not(:disabled) {
-  background: #f9fafb;
+  background: #2a2a2a;
 }
 
 input,
@@ -72,18 +73,20 @@ select,
 textarea {
   font-family: inherit;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #333;
   border-radius: 6px;
   font-size: 14px;
   width: 100%;
+  background: #1f1f1f;
+  color: #e0e0e0;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 .loading {
@@ -92,12 +95,12 @@ textarea:focus {
   align-items: center;
   height: 100vh;
   font-size: 18px;
-  color: #666;
+  color: #aaa;
 }
 
 .error {
-  background: #fee2e2;
-  color: #991b1b;
+  background: #611a15;
+  color: #fca5a5;
   padding: 12px;
   border-radius: 6px;
   margin-bottom: 16px;
@@ -109,7 +112,7 @@ textarea:focus {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.75);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -117,13 +120,14 @@ textarea:focus {
 }
 
 .modal-content {
-  background: white;
+  background: #1f1f1f;
   border-radius: 12px;
   padding: 24px;
   max-width: 600px;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
+  color: #e0e0e0;
 }
 
 .modal-header {
@@ -141,14 +145,14 @@ textarea:focus {
   background: none;
   border: none;
   line-height: 1;
-  color: #999;
+  color: #aaa;
   padding: 0;
   width: 24px;
   height: 24px;
 }
 
 .close-btn:hover {
-  color: #333;
+  color: #fff;
   transform: none;
   box-shadow: none;
 }

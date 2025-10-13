@@ -1,12 +1,14 @@
 .job-details {
   min-height: 100vh;
   padding-bottom: 40px;
+  background: #121212;
+  color: #e0e0e0;
 }
 
 .job-details header {
-  background: white;
+  background: #1f1f1f;
   padding: 20px 40px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.05);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -21,13 +23,13 @@
 
 .job-details header h1 {
   font-size: 24px;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .back-btn {
   background: none !important;
   border: none !important;
-  color: #2563eb;
+  color: #3b82f6;
   font-size: 16px;
   padding: 0 !important;
   text-decoration: none;
@@ -49,16 +51,16 @@
 }
 
 .info-card {
-  background: white;
+  background: #1f1f1f;
   padding: 24px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.05);
 }
 
 .info-card h2 {
   margin-bottom: 16px;
   font-size: 18px;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .info-grid {
@@ -75,14 +77,14 @@
 
 .info-grid label {
   font-size: 12px;
-  color: #6b7280;
+  color: #aaa;
   margin-bottom: 4px;
   font-weight: 500;
 }
 
 .info-grid span {
   font-size: 14px;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .actions {
@@ -104,32 +106,32 @@
 
 .stat label {
   font-size: 13px;
-  color: #6b7280;
+  color: #aaa;
   font-weight: 500;
 }
 
 .stat-bar {
   height: 20px;
-  background: #e5e7eb;
+  background: #333;
   border-radius: 10px;
   overflow: hidden;
 }
 
 .stat-fill {
   height: 100%;
-  background: linear-gradient(90deg, #2563eb, #3b82f6);
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
   transition: width 0.5s;
 }
 
 .stat span {
   font-size: 14px;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .stat .temp {
   font-size: 18px;
   font-weight: 600;
-  color: #2563eb;
+  color: #3b82f6;
 }
 
 .logs-section,
@@ -142,7 +144,7 @@
 .logs-section h2,
 .error-section h2 {
   margin-bottom: 16px;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .logs-container {
@@ -151,7 +153,7 @@
   padding: 20px;
   max-height: 500px;
   overflow-y: auto;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.05);
 }
 
 .logs-container pre {
@@ -165,8 +167,8 @@
 }
 
 .error-log {
-  background: #fee2e2;
-  color: #991b1b;
+  background: #611a15;
+  color: #fee2e2;
   padding: 20px;
   border-radius: 8px;
   font-family: "Courier New", monospace;

@@ -6,13 +6,13 @@
   display: block;
   margin-bottom: 6px;
   font-weight: 500;
-  color: #374151;
+  color: #aaa;
 }
 
 .file-info {
   margin-top: 8px;
   font-size: 13px;
-  color: #6b7280;
+  color: #888;
 }
 
 .upload-progress {
@@ -21,14 +21,14 @@
 
 .progress-bar {
   height: 8px;
-  background: #e5e7eb;
+  background: #333;
   border-radius: 4px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: #2563eb;
+  background: #3b82f6;
   transition: width 0.3s;
 }
 
@@ -36,7 +36,7 @@
   margin-top: 8px;
   text-align: center;
   font-size: 14px;
-  color: #6b7280;
+  color: #aaa;
 }
 
 .form-actions {
@@ -54,12 +54,12 @@
 }
 
 code {
-  background-color: #f5f5f7;
-  color: #d63384;
+  background-color: #1f1f1f;
+  color: #f472b6;
   padding: 0.2em 0.4em;
   border-radius: 6px;
   font-size: 0.95em;
   white-space: pre-wrap;
   word-break: break-word;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #333;
 }
