@@ -128,6 +128,10 @@ def run_training_job(job_id, job_data):
         return
     
     try:
+        # Get docker image from job data
+        docker_image = job_data["docker_image"]
+        resource = job_data["resource"]
+        
         # Extract files
         job_dir = extract_job_files(job_id)
         output_dir = f"{OUTPUTS_DIR}/{job_id}"
@@ -136,15 +140,23 @@ def run_training_job(job_id, job_data):
         # Prepare log file
         log_file = f"{job_dir}/output.log"
         
+        # Create empty log file
+        with open(log_file, 'w') as f:
+            f.write(f"Job started at {datetime.now().isoformat()}\n")
+            f.write(f"Resource: {resource}\n")
+            f.write(f"Docker Image: {docker_image}\n")
+            f.write("-" * 50 + "\n\n")
+        
         # Update job status
         job_data["status"] = "running"
         job_data["started_at"] = datetime.now().isoformat()
         r.set(f"job:{job_id}", json.dumps(job_data))
         
-        # Prepare Docker run command
-        resource = job_data["resource"]
-        docker_image = job_data["docker_image"]
+        print(f"  Extracting files to {job_dir}")
+        print(f"  Output directory: {output_dir}")
+        print(f"  Log file: {log_file}")
         
+        # Prepare Docker run command
         # Set up volumes
         volumes = {
             job_dir: {'bind': '/workspace', 'mode': 'rw'},
@@ -164,6 +176,7 @@ def run_training_job(job_id, job_data):
             ]
         
         # Run container
+        print(f"  Starting Docker container with image: {docker_image}")
         container = client.containers.run(
             docker_image,
             command='bash -c "cd /workspace && pip install -r requirements.txt && python train.py"',
@@ -172,36 +185,59 @@ def run_training_job(job_id, job_data):
             detach=True,
             stdout=True,
             stderr=True,
-            remove=False
+            remove=False,
+            environment={'PYTHONUNBUFFERED': '1'}  # Ensure Python output is not buffered
         )
         
-        # Stream logs to file
-        with open(log_file, 'wb') as f:
-            for log in container.logs(stream=True, follow=True):
-                f.write(log)
+        print(f"  Container started: {container.id[:12]}")
+        print(f"  Streaming logs to {log_file}")
+        
+        # Stream logs to file in real-time
+        with open(log_file, 'ab') as f:
+            for log_chunk in container.logs(stream=True, follow=True, stdout=True, stderr=True):
+                f.write(log_chunk)
                 f.flush()
+                # Also print to console for debugging
+                try:
+                    print(log_chunk.decode('utf-8'), end='')
+                except:
+                    pass
         
         # Wait for container to finish
         result = container.wait()
         
+        print(f"  Container finished with exit code: {result['StatusCode']}")
+        
         # Check exit code
         if result['StatusCode'] == 0:
             job_data["status"] = "completed"
+            print(f"  ✓ Job completed successfully")
         else:
             job_data["status"] = "failed"
             job_data["error"] = f"Container exited with code {result['StatusCode']}"
+            print(f"  ✗ Job failed with exit code {result['StatusCode']}")
         
         # Clean up container
         container.remove()
+        print(f"  Container removed")
         
     except Exception as e:
         job_data["status"] = "failed"
         job_data["error"] = str(e)
+        print(f"  ✗ Error: {e}")
+        import traceback
+        traceback.print_exc()
         
         # Write error to log
         log_file = f"{JOBS_DIR}/{job_id}/output.log"
-        with open(log_file, 'a') as f:
-            f.write(f"\n\nError: {str(e)}\n")
+        try:
+            with open(log_file, 'a') as f:
+                f.write(f"\n\n{'='*50}\n")
+                f.write(f"ERROR: {str(e)}\n")
+                f.write(f"{'='*50}\n")
+                traceback.print_exc(file=f)
+        except:
+            pass
     
     finally:
         # Update final status
