@@ -1,1 +1,4 @@
 .DS_Store
+/data
+/backend/__pycache__
+/frontend/node_modules
