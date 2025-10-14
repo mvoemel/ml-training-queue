@@ -25,9 +25,9 @@ services:
     environment:
       - DATABASE_URL=sqlite:////app/data/app.db
       - REDIS_URL=redis://redis:6379
-      - UPLOAD_DIR=/data/uploads
-      - JOBS_DIR=/data/jobs
-      - OUTPUTS_DIR=/data/outputs
+      - UPLOAD_DIR=./data/uploads
+      - JOBS_DIR=./data/jobs
+      - OUTPUTS_DIR=./data/outputs
       - DOCKER_HOST=unix:///var/run/docker.sock
     depends_on:
       - redis
@@ -54,9 +54,9 @@ services:
     environment:
       - DATABASE_URL=sqlite:///./data/app.db
       - REDIS_URL=redis://redis:6379
-      - UPLOAD_DIR=/data/uploads
-      - JOBS_DIR=/data/jobs
-      - OUTPUTS_DIR=/data/outputs
+      - UPLOAD_DIR=./data/uploads
+      - JOBS_DIR=./data/jobs
+      - OUTPUTS_DIR=./data/outputs
       - DOCKER_HOST=unix:///var/run/docker.sock
     depends_on:
       - redis
