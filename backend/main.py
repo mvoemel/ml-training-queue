@@ -190,6 +190,7 @@ async def stream_job_logs(job_id: str):
     return StreamingResponse(log_generator(), media_type="text/event-stream")
 
 
+# TODO: fix bug does not stop a running container
 @app.post("/api/jobs/{job_id}/cancel")
 async def cancel_job(job_id: str):
     """Cancel a job"""
