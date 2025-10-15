@@ -33,7 +33,6 @@ services:
     build: ./backend
     command: python worker.py
     volumes:
-      # - ./data:/app/data
       - ${PWD}/data:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
