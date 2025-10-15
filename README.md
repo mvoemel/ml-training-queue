@@ -2,18 +2,19 @@
 
 A simple web application for managing and queuing machine learning training jobs on GPU/CPU resources.
 
-**Disclaimer**: In this application authentication and input validation is not implemented. Thus you should never use it in a production environment as it is not save to run it exposed to third party users.
+**Disclaimer**: In this application authentication and input validation is not implemented. Thus you should never use it in a production environment as it is not save to run it exposed to third party users. The Docker socket is mounted, thus be cautious about what training scripts you run.
 
 ## Features
 
-- Upload training jobs as ZIP files containing dataset, train.py, and requirements.txt
+- Upload training jobs as ZIP files containing `dataset`, `train.py`, and `requirements.txt`
 - Select GPU or CPU for training
-- Choose Docker image (PyTorch, TensorFlow, etc.)
+- Choose Docker image (`pytorch/pytorch:latest`, `tensorflow/tensorflow:latest`, etc.)
 - Automatic job queue management
 - Real-time console output streaming
-- Download trained models
+- Download trained models (contains everything in the `/output/` directory of set job)
+- Cancel `pending` or `running` jobs
 - GPU monitoring and utilization tracking
-- Parallel job execution on different resources
+- Parallel job execution on different resources (CPU, GPU 0, GPU 1, etc.)
 
 ## Project Structure
 
@@ -25,6 +26,7 @@ project/
 │   ├── requirements.txt
 │   ├── main.py          # FastAPI backend
 │   └── worker.py        # Job processor
+├── examples/            # Example training datasets and scripts
 ├── frontend/
 │   ├── Dockerfile
 │   ├── nginx.conf
@@ -33,7 +35,7 @@ project/
 │   ├── index.html
 │   └── src/
 │       ├── main.jsx
-│       ├── App.jsx      # Dashboard
+│       ├── App.jsx       # Dashboard
 │       ├── JobDetail.jsx # Job detail view
 │       └── index.css
 └── data/
@@ -44,24 +46,38 @@ project/
 
 ## Prerequisites
 
-- Docker and Docker Compose
-- NVIDIA GPU with drivers installed (optional, for GPU training)
+- Docker v28
+- NVIDIA GPU with drivers installed
 - NVIDIA Container Toolkit for Docker
 
 ### Install NVIDIA Container Toolkit
 
+Install the NVIDIA Container Toolkit (enables GPU passthrough to containers):
+
 ```bash
-# Add the package repositories
+# For Ubuntu
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
-curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
-curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+  sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+  sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
 
-# Install nvidia-docker2
 sudo apt-get update
-sudo apt-get install -y nvidia-docker2
+sudo apt-get install -y nvidia-container-toolkit
+```
 
-# Restart Docker daemon
-sudo systemctl restart docker
+Then configure it:
+
+```bash
+nvidia-ctk runtime configure --runtime=docker
+systemctl restart docker
+```
+
+After this, test:
+
+```bash
+# you need propably define the runtime because it propably is not the default
+docker run --rm --runtime=nvidia --gpus all nvidia/cuda:12.4.1-base-ubuntu22.04 nvidia-smi
 ```
 
 ## Setup
@@ -72,19 +88,27 @@ sudo systemctl restart docker
 mkdir -p data/uploads data/jobs data/outputs
 ```
 
-2. Build and start the services:
+2. Create a `.env` file containing the path to the directory of this repository:
+
+```bash
+nano .env
+```
+
+```env
+PWD=/path/to/this/repository
+```
+
+3. Build and start the services:
 
 ```bash
 docker compose up --build -d
 ```
 
-3. Access the application:
+4. Access the application:
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:8000
 
-## Usage
-
-### Preparing Your Training Job
+## Preparing a Training Job
 
 Create a ZIP file with the following structure:
 
@@ -93,7 +117,8 @@ your_model.zip
 ├── dataset/              # Your training data
 │   ├── train/
 │   ├── test/
-│   └── val/
+│   ├── val/
+│   └── ...
 ├── train.py              # Training script
 └── requirements.txt      # Python dependencies
 ```
@@ -123,33 +148,6 @@ torch.save(model.state_dict(), '/output/model.pth')
 print("Training completed!")
 ```
 
-### Creating a Job
-
-1. Open the web interface at http://localhost:3000
-2. Upload your ZIP file
-3. Select the resource (CPU or GPU)
-4. Select the Docker image
-5. Click "Create Job"
-
-### Monitoring Jobs
-
-- **Dashboard**: View all jobs with their status
-- **Job Details**: Click on any job to see:
-  - Job information and metadata
-  - GPU utilization (if using GPU)
-  - Real-time console output
-  - Download button for completed jobs
-
-### Cancelling Jobs
-
-- Click the "Cancel" button on pending or running jobs
-- The job will be marked as cancelled and resources will be released
-
-### Downloading Results
-
-- Once a job is completed, click the "Download" button
-- You'll receive a ZIP file containing everything in the `/output/` directory
-
 ## Available Docker Images
 
 The system comes pre-configured with:
@@ -161,16 +159,7 @@ The system comes pre-configured with:
 
 You can add more images by modifying the `dockerImages` array in `frontend/src/App.jsx`.
 
-## Resource Management
-
-- The system tracks which resources (GPUs/CPU) are in use
-- Jobs assigned to different resources run in parallel
-- When a resource becomes available, the next pending job for that resource starts automatically
-- Example: GPU 0 and GPU 1 can each run one job simultaneously
-
 ## Development
-
-### Running Locally (without Docker)
 
 **Prerequisites for local development:**
 
@@ -188,19 +177,7 @@ mkdir -p data/uploads data/jobs data/outputs
 **2. Start Redis:**
 
 ```bash
-# macOS with Homebrew
-brew install redis
-brew services start redis
-
-# Ubuntu/Debian
-sudo apt-get install redis-server
-sudo systemctl start redis
-
-# Or use Docker for Redis only
 docker run -d -p 6379:6379 redis:7-alpine
-
-# Verify Redis is running
-redis-cli ping  # Should return "PONG"
 ```
 
 **3. Setup Backend:**
@@ -208,10 +185,7 @@ redis-cli ping  # Should return "PONG"
 ```bash
 cd backend
 
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-# or use conda
+# Create virtual environment (e.g. using conda)
 conda activate <your_env>
 
 # Install dependencies
@@ -231,7 +205,7 @@ npm install
 
 ```bash
 cd backend
-source venv/bin/activate
+conda activate <your_env>
 uvicorn main:app --reload
 ```
 
@@ -239,7 +213,7 @@ uvicorn main:app --reload
 
 ```bash
 cd backend
-source venv/bin/activate
+conda activate <your_env>
 python worker.py
 ```
 
@@ -255,96 +229,22 @@ npm run dev
 - Frontend: http://localhost:5173 (Vite dev server)
 - Backend API: http://localhost:8000
 
-**Troubleshooting Docker connection on macOS:**
-
-If the worker can't connect to Docker, try these solutions in order:
-
-1. **Make sure Docker Desktop is running:**
-
-   ```bash
-   docker ps  # Should show running containers or empty list, not an error
-   ```
-
-2. **Set DOCKER_HOST environment variable:**
-
-   ```bash
-   # For Docker Desktop on macOS
-   export DOCKER_HOST=unix://$HOME/.docker/run/docker.sock
-
-   # Then run the worker
-   python worker.py
-   ```
-
-3. **Grant permissions to Docker socket:**
-
-   ```bash
-   # If using /var/run/docker.sock
-   sudo chmod 666 /var/run/docker.sock
-   ```
-
-4. **Best option - Use docker-compose:**
-
-   Docker-compose handles all the connection issues automatically:
-
-   ```bash
-   docker-compose up --build
-   ```
-
-   This is the recommended approach as it avoids all local Docker connection issues.
-
-### Environment Variables
-
-- `REDIS_URL`: Redis connection URL (default: `redis://redis:6379`)
-
 ## Troubleshooting
 
-### GPU not detected
-
-- Ensure NVIDIA drivers are installed: `nvidia-smi`
-- Verify Docker can access GPU: `docker run --gpus all nvidia/cuda:11.8.0-base-ubuntu22.04 nvidia-smi`
-- Check NVIDIA Container Toolkit is installed
-
-### Jobs stuck in pending
-
-- Check worker logs: `docker-compose logs worker`
-- Ensure Docker socket is mounted correctly
-- Verify Redis is running: `docker-compose logs redis`
-
-### Training script errors
-
-- Check job logs in the web interface
-- Ensure your `train.py` reads from `./dataset/` and writes to `/output/`
-- Verify all dependencies are in `requirements.txt`
-
-## Scaling
-
-To run multiple workers for faster processing:
-
 ```bash
-docker-compose up --scale worker=3
+# Get logs of a specific container
+docker logs mltq-worker-1
 ```
 
-## Security Notes
-
-- This application has **no authentication** - suitable for local/trusted networks only
-- For production use, add authentication and HTTPS
-- The Docker socket is mounted - be cautious about what training scripts you run
-
-## License
-
-MIT
-
----
-
-Reset data
+## Delete all data
 
 ```bash
 # Step 1: Stop the containers
-sudo docker compose down
+docker compose down
 
 # Step 2: Remove the redis volume (e.g. "mltq_redis_data"), if it does not work check the name first
-# sudo docker volume ls
-sudo docker volume rm mltq_redis_data
+# docker volume ls
+docker volume rm mltq_redis_data
 
 # Step 3: Delete the data directories and all its content
 rm -r data
@@ -353,34 +253,6 @@ rm -r data
 mkdir -p data/uploads data/jobs data/outputs
 ```
 
----
+## License
 
-Install NVIDIA Container Toolkit
-
-Install the NVIDIA Container Toolkit (enables GPU passthrough to containers):
-
-```bash
-# For Ubuntu
-distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
-curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
-curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
-  sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
-  sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
-
-sudo apt-get update
-sudo apt-get install -y nvidia-container-toolkit
-```
-
-Then configure it:
-
-```bash
-sudo nvidia-ctk runtime configure --runtime=docker
-sudo systemctl restart docker
-```
-
-After this, test:
-
-```bash
-# you need propably define the runtime because it propably is not the default
-docker run --rm --runtime=nvidia --gpus all nvidia/cuda:12.4.1-base-ubuntu22.04 nvidia-smi
-```
+MIT

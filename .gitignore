@@ -3,3 +3,4 @@
 /backend/__pycache__
 /frontend/node_modules
 examples/**/*.zip
+.env
