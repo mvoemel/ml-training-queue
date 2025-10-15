@@ -153,23 +153,36 @@ def run_training_job(job_id, job_data):
         os.makedirs(output_dir, exist_ok=True)
         
         # When running in Docker, we need to use host paths for volume mounts
-        # The worker's /app/data is mounted from host's ./data
-        if os.path.exists("/.dockerenv"):
-            # Running in Docker - need to map container paths to host paths
-            # The worker sees /app/data, but Docker needs the host path
-            # Since docker-compose mounts ./data to /app/data, we need to strip /app
-            host_data_dir = os.path.abspath(DATA_DIR).replace('/app', '/data', 1)
-            if not host_data_dir.startswith('/data'):
-                # Fallback: assume standard docker-compose setup
-                host_job_dir = job_dir.replace('/app/data', '/data')
-                host_output_dir = output_dir.replace('/app/data', '/data')
-            else:
-                host_job_dir = f"/data/jobs/{job_id}"
-                host_output_dir = f"/data/outputs/{job_id}"
+        host_data_dir = os.getenv('HOST_DATA_DIR')
+        
+        # Verify files exist before mounting
+        print(f"  Checking extracted files in {job_dir}:")
+        if os.path.exists(job_dir):
+            files = os.listdir(job_dir)
+            print(f"  Files: {files}")
+            
+            # Check for requirements.txt and train.py
+            has_req = any('requirements.txt' in f for f in files)
+            has_train = any('train.py' in f for f in files)
+            print(f"  Has requirements.txt: {has_req}")
+            print(f"  Has train.py: {has_train}")
+        else:
+            print(f"  ERROR: Job directory does not exist!")
+        
+        if host_data_dir:
+            # Running in Docker with HOST_DATA_DIR set
+            host_job_dir = f"{host_data_dir}/jobs/{job_id}"
+            host_output_dir = f"{host_data_dir}/outputs/{job_id}"
             
             print(f"  Running in Docker - using host paths")
-            print(f"  Container job_dir: {job_dir} -> Host: {host_job_dir}")
-            print(f"  Container output_dir: {output_dir} -> Host: {host_output_dir}")
+            print(f"  Host job dir: {host_job_dir}")
+            print(f"  Host output dir: {host_output_dir}")
+            
+            # Verify host paths exist (they should be visible via the mount)
+            if os.path.exists(host_job_dir):
+                print(f"  ✓ Host job dir exists and is accessible")
+            else:
+                print(f"  ✗ WARNING: Host job dir not accessible from worker")
             
             volumes = {
                 host_job_dir: {'bind': '/workspace', 'mode': 'rw'},
@@ -177,10 +190,13 @@ def run_training_job(job_id, job_data):
             }
         else:
             # Running locally - use absolute paths directly
+            print(f"  Running locally - using local paths")
             volumes = {
                 os.path.abspath(job_dir): {'bind': '/workspace', 'mode': 'rw'},
                 os.path.abspath(output_dir): {'bind': '/output', 'mode': 'rw'}
             }
+        
+        print(f"  Volume mounts: {volumes}")
         
         # Prepare log file
         log_file = f"{job_dir}/output.log"
@@ -202,11 +218,6 @@ def run_training_job(job_id, job_data):
         print(f"  Log file: {log_file}")
         
         # Prepare Docker run command
-        # Set up volumes
-        volumes = {
-            job_dir: {'bind': '/workspace', 'mode': 'rw'},
-            output_dir: {'bind': '/output', 'mode': 'rw'}
-        }
         
         # Set up device requests for GPU
         device_requests = None
