@@ -186,8 +186,12 @@ def run_training_job(job_id, job_data):
             stdout=True,
             stderr=True,
             remove=False,
-            environment={'PYTHONUNBUFFERED': '1'}  # Ensure Python output is not buffered
+            environment={'PYTHONUNBUFFERED': '1'},  # Ensure Python output is not buffered
+            name=f"ml-job-{job_id}"  # Name container for easy identification
         )
+        
+        # Store container ID in Redis for cancellation
+        r.set(f"container:{job_id}", container.id)
         
         print(f"  Container started: {container.id[:12]}")
         print(f"  Streaming logs to {log_file}")

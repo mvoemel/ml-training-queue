@@ -190,7 +190,6 @@ async def stream_job_logs(job_id: str):
     return StreamingResponse(log_generator(), media_type="text/event-stream")
 
 
-# TODO: fix bug does not stop a running container
 @app.post("/api/jobs/{job_id}/cancel")
 async def cancel_job(job_id: str):
     """Cancel a job"""
@@ -213,9 +212,25 @@ async def cancel_job(job_id: str):
     # Remove from pending queue if present
     r.lrem("queue:pending", 0, job_id)
     
-    # Release resource if running
-    if job["status"] == "running":
+    # If running, stop the container
+    if job.get("resource"):
         r.delete(f"resource:{job['resource']}")
+    
+    # Try to stop the Docker container if it's running
+    container_id = r.get(f"container:{job_id}")
+    if container_id:
+        try:
+            import docker
+            docker_client = docker.from_env()
+            container = docker_client.containers.get(container_id)
+            container.stop(timeout=5)
+            container.remove()
+            print(f"Stopped and removed container {container_id[:12]} for job {job_id}")
+        except Exception as e:
+            print(f"Error stopping container: {e}")
+            # Continue anyway, worker will handle it
+        finally:
+            r.delete(f"container:{job_id}")
     
     return {"status": "cancelled"}
 
