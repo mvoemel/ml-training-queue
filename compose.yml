@@ -13,10 +13,11 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./data:/app/data
+      - ${PWD}/data:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - REDIS_URL=redis://redis:6379
+      - HOST_DATA_DIR=${PWD}/data
     depends_on:
       - redis
     deploy:
@@ -32,10 +33,12 @@ services:
     build: ./backend
     command: python worker.py
     volumes:
-      - ./data:/app/data
+      # - ./data:/app/data
+      - ${PWD}/data:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - REDIS_URL=redis://redis:6379
+      - HOST_DATA_DIR=${PWD}/data
     depends_on:
       - redis
     deploy:

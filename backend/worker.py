@@ -94,8 +94,23 @@ def extract_job_files(job_id):
     
     os.makedirs(job_dir, exist_ok=True)
     
+    print(f"  Extracting {zip_path} to {job_dir}")
+    
+    if not os.path.exists(zip_path):
+        raise Exception(f"Zip file not found: {zip_path}")
+    
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
         zip_ref.extractall(job_dir)
+    
+    # List extracted contents for debugging
+    print(f"  Extracted files:")
+    for root, dirs, files in os.walk(job_dir):
+        level = root.replace(job_dir, '').count(os.sep)
+        indent = ' ' * 2 * level
+        print(f"{indent}{os.path.basename(root)}/")
+        subindent = ' ' * 2 * (level + 1)
+        for file in files:
+            print(f"{subindent}{file}")
     
     return job_dir
 
@@ -136,6 +151,36 @@ def run_training_job(job_id, job_data):
         job_dir = extract_job_files(job_id)
         output_dir = f"{OUTPUTS_DIR}/{job_id}"
         os.makedirs(output_dir, exist_ok=True)
+        
+        # When running in Docker, we need to use host paths for volume mounts
+        # The worker's /app/data is mounted from host's ./data
+        if os.path.exists("/.dockerenv"):
+            # Running in Docker - need to map container paths to host paths
+            # The worker sees /app/data, but Docker needs the host path
+            # Since docker-compose mounts ./data to /app/data, we need to strip /app
+            host_data_dir = os.path.abspath(DATA_DIR).replace('/app', '/data', 1)
+            if not host_data_dir.startswith('/data'):
+                # Fallback: assume standard docker-compose setup
+                host_job_dir = job_dir.replace('/app/data', '/data')
+                host_output_dir = output_dir.replace('/app/data', '/data')
+            else:
+                host_job_dir = f"/data/jobs/{job_id}"
+                host_output_dir = f"/data/outputs/{job_id}"
+            
+            print(f"  Running in Docker - using host paths")
+            print(f"  Container job_dir: {job_dir} -> Host: {host_job_dir}")
+            print(f"  Container output_dir: {output_dir} -> Host: {host_output_dir}")
+            
+            volumes = {
+                host_job_dir: {'bind': '/workspace', 'mode': 'rw'},
+                host_output_dir: {'bind': '/output', 'mode': 'rw'}
+            }
+        else:
+            # Running locally - use absolute paths directly
+            volumes = {
+                os.path.abspath(job_dir): {'bind': '/workspace', 'mode': 'rw'},
+                os.path.abspath(output_dir): {'bind': '/output', 'mode': 'rw'}
+            }
         
         # Prepare log file
         log_file = f"{job_dir}/output.log"
