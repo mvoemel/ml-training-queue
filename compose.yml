@@ -1,3 +1,5 @@
+name: "mltq"
+
 services:
   redis:
     image: redis:7-alpine

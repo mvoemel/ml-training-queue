@@ -195,9 +195,45 @@ def run_training_job(job_id, job_data):
         # Run container
         print(f"  Starting Docker container with image: {docker_image}")
         
+        # Build command that handles nested directories
+        command = '''bash -c "
+            cd /workspace
+            echo 'Contents of /workspace:'
+            ls -la
+            
+            # Find requirements.txt and train.py
+            REQ_FILE=$(find . -name 'requirements.txt' -type f | head -n 1)
+            TRAIN_FILE=$(find . -name 'train.py' -type f | head -n 1)
+            
+            if [ -z '$REQ_FILE' ]; then
+                echo 'ERROR: requirements.txt not found'
+                exit 1
+            fi
+            
+            if [ -z '$TRAIN_FILE' ]; then
+                echo 'ERROR: train.py not found'
+                exit 1
+            fi
+            
+            echo 'Found requirements.txt at:' $REQ_FILE
+            echo 'Found train.py at:' $TRAIN_FILE
+            
+            # Change to directory containing train.py
+            TRAIN_DIR=$(dirname $TRAIN_FILE)
+            cd $TRAIN_DIR
+            echo 'Changed to directory:' $(pwd)
+            
+            # Install requirements
+            pip install -r requirements.txt
+            
+            # Run training
+            python train.py
+        "'''
+        
         container_kwargs = {
             'image': docker_image,
-            'command': 'bash -c "cd /workspace && pip install -r requirements.txt && python train.py"',
+            # 'command': 'bash -c "cd /workspace && pip install -r requirements.txt && python train.py"',
+            'command': command,
             'volumes': volumes,
             'detach': True,
             'stdout': True,
