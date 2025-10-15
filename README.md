@@ -174,13 +174,19 @@ You can add more images by modifying the `dockerImages` array in `frontend/src/A
 mkdir -p data/uploads data/jobs data/outputs
 ```
 
-**2. Start Redis:**
+**2. Create `.env` file with:**
+
+```env
+PWD=.
+```
+
+**3. Start Redis:**
 
 ```bash
 docker run -d -p 6379:6379 redis:7-alpine
 ```
 
-**3. Setup Backend:**
+**4. Setup Backend:**
 
 ```bash
 cd backend
@@ -192,14 +198,14 @@ conda activate <your_env>
 pip install -r requirements.txt
 ```
 
-**4. Setup Frontend:**
+**5. Setup Frontend:**
 
 ```bash
 cd frontend
 npm install
 ```
 
-**5. Start services in separate terminals:**
+**6. Start services in separate terminals:**
 
 **Terminal 1 - Backend API:**
 
