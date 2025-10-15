@@ -165,30 +165,55 @@ def run_training_job(job_id, job_data):
         
         # Set up device requests for GPU
         device_requests = None
+        runtime = None
+        
         if resource.startswith("gpu:"):
             gpu_id = resource.split(":")[1]
-            import docker
-            device_requests = [
-                docker.types.DeviceRequest(
-                    device_ids=[gpu_id],
-                    capabilities=[['gpu']]
-                )
-            ]
+            
+            # Check if we're running inside Docker (worker in container)
+            if os.path.exists("/.dockerenv"):
+                # Running in Docker - use nvidia runtime
+                runtime = "nvidia"
+                # Set GPU device via environment variable
+                environment = {
+                    'PYTHONUNBUFFERED': '1',
+                    'NVIDIA_VISIBLE_DEVICES': gpu_id
+                }
+            else:
+                # Running locally - use device requests
+                import docker
+                device_requests = [
+                    docker.types.DeviceRequest(
+                        device_ids=[gpu_id],
+                        capabilities=[['gpu']]
+                    )
+                ]
+                environment = {'PYTHONUNBUFFERED': '1'}
+        else:
+            environment = {'PYTHONUNBUFFERED': '1'}
         
         # Run container
         print(f"  Starting Docker container with image: {docker_image}")
-        container = client.containers.run(
-            docker_image,
-            command='bash -c "cd /workspace && pip install -r requirements.txt && python train.py"',
-            volumes=volumes,
-            device_requests=device_requests,
-            detach=True,
-            stdout=True,
-            stderr=True,
-            remove=False,
-            environment={'PYTHONUNBUFFERED': '1'},  # Ensure Python output is not buffered
-            name=f"ml-job-{job_id}"  # Name container for easy identification
-        )
+        
+        container_kwargs = {
+            'image': docker_image,
+            'command': 'bash -c "cd /workspace && pip install -r requirements.txt && python train.py"',
+            'volumes': volumes,
+            'detach': True,
+            'stdout': True,
+            'stderr': True,
+            'remove': False,
+            'environment': environment,
+            'name': f"ml-job-{job_id}"
+        }
+        
+        if device_requests:
+            container_kwargs['device_requests'] = device_requests
+        
+        if runtime:
+            container_kwargs['runtime'] = runtime
+        
+        container = client.containers.run(**container_kwargs)
         
         # Store container ID in Redis for cancellation
         r.set(f"container:{job_id}", container.id)
