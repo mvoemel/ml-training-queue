@@ -1,0 +1,16 @@
+# Core PyTorch and torchvision
+torch>=2.0.0
+torchvision>=0.15.0
+
+# timm for pretrained models
+timm>=0.9.0
+
+# Data and visualization
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Progress bar
+tqdm>=4.65.0
+
+# System tools (usually included with Python)
+# sys is part of the standard library — no installation needed
