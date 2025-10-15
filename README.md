@@ -75,7 +75,7 @@ mkdir -p data/uploads data/jobs data/outputs
 2. Build and start the services:
 
 ```bash
-docker-compose up --build
+docker compose up --build -d
 ```
 
 3. Access the application:
@@ -333,3 +333,54 @@ docker-compose up --scale worker=3
 ## License
 
 MIT
+
+---
+
+Reset data
+
+```bash
+# Step 1: Stop the containers
+sudo docker compose down
+
+# Step 2: Remove the redis volume (e.g. "mltq_redis_data"), if it does not work check the name first
+# sudo docker volume ls
+sudo docker volume rm mltq_redis_data
+
+# Step 3: Delete the data directories and all its content
+rm -r data
+
+# Step 4: Init the empty data directories
+mkdir -p data/uploads data/jobs data/outputs
+```
+
+---
+
+Install NVIDIA Container Toolkit
+
+Install the NVIDIA Container Toolkit (enables GPU passthrough to containers):
+
+```bash
+# For Ubuntu
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+  sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+  sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+
+sudo apt-get update
+sudo apt-get install -y nvidia-container-toolkit
+```
+
+Then configure it:
+
+```bash
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
+```
+
+After this, test:
+
+```bash
+# you need propably define the runtime because it propably is not the default
+docker run --rm --runtime=nvidia --gpus all nvidia/cuda:12.4.1-base-ubuntu22.04 nvidia-smi
+```
