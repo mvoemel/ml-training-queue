@@ -34,6 +34,7 @@ project/
 │   ├── vite.config.js
 │   ├── index.html
 │   └── src/
+│       ├── components/
 │       ├── main.jsx
 │       ├── App.jsx       # Dashboard
 │       ├── JobDetail.jsx # Job detail view
