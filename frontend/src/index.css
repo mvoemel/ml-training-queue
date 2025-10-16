@@ -14,6 +14,10 @@ body {
   color: #c9d1d9;
 }
 
+.muted-text {
+  color: #797e83;
+}
+
 .container {
   max-width: 1400px;
   margin: 0 auto;
@@ -44,11 +48,14 @@ body {
   color: #c9d1d9;
 }
 
+.section button {
+  margin-bottom: 15px;
+}
+
 .upload-form {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  max-width: 500px;
 }
 
 .form-group {
@@ -81,6 +88,54 @@ body {
 
 .form-group input[type="file"] {
   cursor: pointer;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #0d1117;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  color: #c9d1d9;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+button.close-btn {
+  background: none;
+  border: none;
+  line-height: 1;
+  color: #c9d1d9;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  font-size: larger;
+}
+
+button.close-btn:hover {
+  background-color: #30363d;
+  transform: none;
+  box-shadow: none;
 }
 
 button {

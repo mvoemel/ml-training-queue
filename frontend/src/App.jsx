@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { JobForm } from "./components/JobForm";
 
 function App() {
   const [jobs, setJobs] = useState([]);
   const [gpus, setGpus] = useState([]);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [resource, setResource] = useState("cpu");
-  const [dockerImage, setDockerImage] = useState("pytorch/pytorch:latest");
-  const [uploading, setUploading] = useState(false);
+
+  const [showJobForm, setShowJobForm] = useState(false);
+
   const navigate = useNavigate();
 
   const dockerImages = [
@@ -45,44 +45,6 @@ function App() {
       setGpus(response.data.gpus);
     } catch (error) {
       console.error("Error fetching GPUs:", error);
-    }
-  };
-
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!selectedFile) {
-      alert("Please select a file");
-      return;
-    }
-
-    setUploading(true);
-
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-    formData.append("resource", resource);
-    formData.append("docker_image", dockerImage);
-
-    try {
-      await axios.post("/api/jobs", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      setSelectedFile(null);
-      document.getElementById("file-input").value = "";
-      fetchJobs();
-      alert("Job created successfully!");
-    } catch (error) {
-      console.error("Error creating job:", error);
-      alert("Error creating job");
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -145,7 +107,7 @@ function App() {
       <div className="section">
         <h2>Available GPUs</h2>
         {gpus.length === 0 ? (
-          <p>No GPUs detected</p>
+          <p className="muted-text">No GPUs detected</p>
         ) : (
           <div className="gpu-grid">
             {gpus.map((gpu) => (
@@ -184,60 +146,10 @@ function App() {
       </div>
 
       <div className="section">
-        <h2>Create New Job</h2>
-        <form onSubmit={handleSubmit} className="upload-form">
-          <div className="form-group">
-            <label htmlFor="file-input">Upload ZIP File:</label>
-            <input
-              id="file-input"
-              type="file"
-              accept=".zip"
-              onChange={handleFileChange}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="resource-select">Resource:</label>
-            <select
-              id="resource-select"
-              value={resource}
-              onChange={(e) => setResource(e.target.value)}
-            >
-              <option value="cpu">CPU</option>
-              {gpus.map((gpu) => (
-                <option key={gpu.id} value={`gpu:${gpu.id}`}>
-                  GPU {gpu.id} ({gpu.name})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="docker-select">Docker Image:</label>
-            <select
-              id="docker-select"
-              value={dockerImage}
-              onChange={(e) => setDockerImage(e.target.value)}
-            >
-              {dockerImages.map((image) => (
-                <option key={image} value={image}>
-                  {image}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <button type="submit" disabled={uploading}>
-            {uploading ? "Uploading..." : "Create Job"}
-          </button>
-        </form>
-      </div>
-
-      <div className="section">
         <h2>Jobs</h2>
+        <button onClick={() => setShowJobForm(true)}>Create Job</button>
         {jobs.length === 0 ? (
-          <p>No jobs yet</p>
+          <p className="muted-text">No jobs yet</p>
         ) : (
           <table className="jobs-table">
             <thead>
@@ -291,6 +203,14 @@ function App() {
           </table>
         )}
       </div>
+
+      {showJobForm && (
+        <JobForm
+          gpus={gpus}
+          dockerImages={dockerImages}
+          onClose={() => setShowJobForm(false)}
+        />
+      )}
     </div>
   );
 }
