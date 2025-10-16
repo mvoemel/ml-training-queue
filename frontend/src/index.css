@@ -21,11 +21,7 @@ body {
 }
 
 .header {
-  background: #161b22;
-  padding: 20px;
   margin-bottom: 20px;
-  border-radius: 8px;
-  border: 1px solid #30363d;
 }
 
 .header h1 {
@@ -259,13 +255,24 @@ button.success:hover {
 }
 
 .job-detail {
+  position: relative;
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
 
-.back-button {
+.sticky-header {
+  position: sticky;
+  top: 10px;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  background: #161b225c;
+  padding: 20px;
   margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #30363d;
+  display: flex;
+  gap: 10px;
 }
 
 .detail-grid {

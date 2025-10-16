@@ -103,11 +103,11 @@ function JobDetail() {
 
   return (
     <div className="job-detail">
-      <div className="header">
-        <button className="secondary back-button" onClick={() => navigate("/")}>
+      <div className="sticky-header">
+        <button className="secondary" onClick={() => navigate("/")}>
           ← Back to Dashboard
         </button>
-        <h1>Job Details: {job.name}</h1>
+        <h1>{job.name}</h1>
       </div>
 
       <div className="detail-grid">
