@@ -307,7 +307,9 @@ button.success:hover {
 
 .action-buttons button {
   padding: 6px 12px;
+  margin: 0;
   font-size: 12px;
+  line-height: 1;
 }
 
 .job-detail {
