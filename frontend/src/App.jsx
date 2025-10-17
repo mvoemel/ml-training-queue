@@ -209,6 +209,7 @@ function App() {
           gpus={gpus}
           dockerImages={dockerImages}
           onClose={() => setShowJobForm(false)}
+          fetchJobs={fetchJobs}
         />
       )}
     </div>

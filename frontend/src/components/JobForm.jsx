@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 
-function JobForm({ gpus, dockerImages, onClose }) {
+function JobForm({ gpus, dockerImages, onClose, fetchJobs }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [resource, setResource] = useState("cpu");
   const [dockerImage, setDockerImage] = useState("pytorch/pytorch:latest");
