@@ -243,6 +243,13 @@ npm run dev
 docker logs mltq-worker-1
 ```
 
+### `OSError: [Errno 28] No space left on device`
+
+```bash
+# Clean up old images, etc.
+docker system prune -a
+```
+
 ## Delete all data
 
 ```bash
