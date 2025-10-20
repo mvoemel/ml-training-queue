@@ -233,6 +233,27 @@ button.success:hover {
   transition: width 0.3s;
 }
 
+.upload-progress-bar {
+  margin-top: 10px;
+  width: 100%;
+  background-color: #21262d;
+  border-radius: 4px;
+  height: 20px;
+  overflow: hidden;
+}
+
+.upload-progress-fill {
+  background-color: #238636;
+  height: 100%;
+  transition: width 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
 .jobs-table {
   width: 100%;
   border-collapse: collapse;

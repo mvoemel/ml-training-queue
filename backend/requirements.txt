@@ -6,3 +6,4 @@ docker==7.1.0
 pydantic>=2.7.0
 python-dotenv==1.0.0
 pynvml==11.5.0
+aiofiles==23.2.1

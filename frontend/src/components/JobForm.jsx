@@ -5,7 +5,9 @@ function JobForm({ gpus, dockerImages, onClose, fetchJobs }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [resource, setResource] = useState("cpu");
   const [dockerImage, setDockerImage] = useState("pytorch/pytorch:latest");
+
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -20,6 +22,7 @@ function JobForm({ gpus, dockerImages, onClose, fetchJobs }) {
     }
 
     setUploading(true);
+    setUploadProgress(0);
 
     const formData = new FormData();
     formData.append("file", selectedFile);
@@ -31,17 +34,24 @@ function JobForm({ gpus, dockerImages, onClose, fetchJobs }) {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        onUploadProgress: (progressEvent) => {
+          const progress = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setUploadProgress(progress);
+        },
+        timeout: 600_000, // 10 minute timeout
       });
 
       setSelectedFile(null);
       document.getElementById("file-input").value = "";
       fetchJobs();
-      alert("Job created successfully!");
     } catch (error) {
       console.error("Error creating job:", error);
       alert("Error creating job");
     } finally {
       setUploading(false);
+      setUploadProgress(0);
       onClose();
     }
   };
@@ -98,6 +108,19 @@ function JobForm({ gpus, dockerImages, onClose, fetchJobs }) {
               ))}
             </select>
           </div>
+
+          {uploading && (
+            <div className="upload-progress-bar">
+              <div
+                className="upload-progress-fill"
+                style={{
+                  width: `${uploadProgress}%`,
+                }}
+              >
+                {uploadProgress}%
+              </div>
+            </div>
+          )}
 
           <button type="submit" disabled={uploading}>
             {uploading ? "Uploading..." : "Create Job"}

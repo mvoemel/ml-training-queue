@@ -10,6 +10,7 @@ import asyncio
 from datetime import datetime
 from typing import Optional
 import pynvml
+import aiofiles
 
 app = FastAPI()
 
@@ -83,11 +84,11 @@ async def create_job(
     job_id = str(uuid.uuid4())
     job_name = file.filename.replace(".zip", "")
     
-    # Save uploaded file
+    # Save uploaded file in chunks to avoid memory issues
     upload_path = f"{UPLOADS_DIR}/{job_id}.zip"
-    with open(upload_path, "wb") as f:
-        content = await file.read()
-        f.write(content)
+    async with aiofiles.open(upload_path, "wb") as f:
+        while chunk := await file.read(1024 * 1024):  # Read 1MB at a time
+            await f.write(chunk)
     
     # Create job metadata
     job_data = {
