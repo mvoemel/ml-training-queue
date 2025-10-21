@@ -329,7 +329,39 @@ def run_training_job(job_id, job_data):
         
         print(f"  Container finished with exit code: {result['StatusCode']}")
         
+        # Check if job was cancelled before updating status
+        # Reload job data from Redis to get the latest status
+        current_job_data = r.get(f"job:{job_id}")
+        if current_job_data:
+            current_job = json.loads(current_job_data)
+            if current_job["status"] == "cancelled":
+                print(f"  Job was cancelled, preserving cancelled status")
+                job_data = current_job  # Use the current status from Redis
+                # Clean up container
+                try:
+                    container.remove()
+                    print(f"  Container removed")
+                except:
+                    pass
+                return  # Exit early, don't update status
+        
         # Check exit code
+        # Exit code 137 typically means SIGKILL (often from cancellation)
+        # if result['StatusCode'] == 137:
+        #     # Double-check if this was a cancellation
+        #     current_job_data = r.get(f"job:{job_id}")
+        #     if current_job_data:
+        #         current_job = json.loads(current_job_data)
+        #         if current_job["status"] == "cancelled":
+        #             print(f"  Job was cancelled (exit code 137)")
+        #             job_data = current_job
+        #             try:
+        #                 container.remove()
+        #                 print(f"  Container removed")
+        #             except:
+        #                 pass
+        #             return
+        
         if result['StatusCode'] == 0:
             job_data["status"] = "completed"
             print(f"  ✓ Job completed successfully")
@@ -343,6 +375,15 @@ def run_training_job(job_id, job_data):
         print(f"  Container removed")
         
     except Exception as e:
+        # Check if job was cancelled before marking as failed
+        current_job_data = r.get(f"job:{job_id}")
+        if current_job_data:
+            current_job = json.loads(current_job_data)
+            if current_job["status"] == "cancelled":
+                print(f"  Job was cancelled, not marking as failed")
+                job_data = current_job
+                return
+        
         job_data["status"] = "failed"
         job_data["error"] = str(e)
         print(f"  ✗ Error: {e}")
@@ -361,9 +402,13 @@ def run_training_job(job_id, job_data):
             pass
     
     finally:
-        # Update final status
-        job_data["completed_at"] = datetime.now().isoformat()
-        r.set(f"job:{job_id}", json.dumps(job_data))
+        # Update final status - but only if not cancelled
+        current_job_data = r.get(f"job:{job_id}")
+        if current_job_data:
+            current_job = json.loads(current_job_data)
+            if current_job["status"] != "cancelled":
+                job_data["completed_at"] = datetime.now().isoformat()
+                r.set(f"job:{job_id}", json.dumps(job_data))
         
         # Release resource
         release_resource(job_data["resource"])
@@ -404,7 +449,7 @@ def process_pending_jobs():
                     # Run job
                     run_training_job(job_id, job_data)
                     
-                    print(f"Job {job_id} completed with status: {job_data['status']}")
+                    print(f"Job {job_id} completed")
                 else:
                     # Resource not available, put job back in queue
                     r.rpush("queue:pending", job_id)
