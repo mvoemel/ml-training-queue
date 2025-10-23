@@ -40,9 +40,9 @@ project/
 │       ├── JobDetail.jsx # Job detail view
 │       └── index.css
 └── data/
-    ├── uploads/         # Uploaded ZIP files
-    ├── jobs/            # Extracted job files
-    └── outputs/         # Trained models
+    ├── uploads/          # Uploaded ZIP files
+    ├── jobs/             # Extracted job files
+    └── outputs/          # Trained models
 ```
 
 ## Prerequisites
