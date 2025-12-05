@@ -12,10 +12,17 @@ function App() {
   const navigate = useNavigate();
 
   const dockerImages = [
-    "pytorch/pytorch:latest",
-    "pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime",
+    "pytorch/pytorch:2.9.1-cuda12.6-cudnn9-runtime",
+    "pytorch/pytorch:2.9.1-cuda12.8-cudnn9-runtime",
+    "pytorch/pytorch:2.9.1-cuda13.0-cudnn9-runtime",
+    "pytorch/pytorch:2.9.1-cuda13.0-cudnn9-devel",
     "tensorflow/tensorflow:latest-gpu",
+    "tensorflow/tensorflow:latest-devel-gpu",
     "tensorflow/tensorflow:latest",
+    "tensorflow/tensorflow:latest-devel",
+    "python:latest",
+    "python:3.12-alpine",
+    "python:3.11-alpine",
   ];
 
   useEffect(() => {
