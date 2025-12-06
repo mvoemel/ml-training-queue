@@ -161,11 +161,11 @@ def run_training_job(job_id, job_data):
             files = os.listdir(job_dir)
             print(f"  Files: {files}")
             
-            # Check for requirements.txt and train.py
+            # Check for requirements.txt and main.py
             has_req = any('requirements.txt' in f for f in files)
-            has_train = any('train.py' in f for f in files)
+            has_train = any('main.py' in f for f in files)
             print(f"  Has requirements.txt: {has_req}")
-            print(f"  Has train.py: {has_train}")
+            print(f"  Has main.py: {has_train}")
         else:
             print(f"  ERROR: Job directory does not exist!")
         
@@ -257,9 +257,9 @@ def run_training_job(job_id, job_data):
             echo 'Contents of /workspace:'
             ls -la
             
-            # Find requirements.txt and train.py
+            # Find requirements.txt and main.py
             REQ_FILE=$(find . -name 'requirements.txt' -type f | head -n 1)
-            TRAIN_FILE=$(find . -name 'train.py' -type f | head -n 1)
+            TRAIN_FILE=$(find . -name 'main.py' -type f | head -n 1)
             
             if [ -z '$REQ_FILE' ]; then
                 echo 'ERROR: requirements.txt not found'
@@ -267,14 +267,14 @@ def run_training_job(job_id, job_data):
             fi
             
             if [ -z '$TRAIN_FILE' ]; then
-                echo 'ERROR: train.py not found'
+                echo 'ERROR: main.py not found'
                 exit 1
             fi
             
             echo 'Found requirements.txt at:' $REQ_FILE
-            echo 'Found train.py at:' $TRAIN_FILE
+            echo 'Found main.py at:' $TRAIN_FILE
             
-            # Change to directory containing train.py
+            # Change to directory containing main.py
             TRAIN_DIR=$(dirname $TRAIN_FILE)
             cd $TRAIN_DIR
             echo 'Changed to directory:' $(pwd)
@@ -283,12 +283,12 @@ def run_training_job(job_id, job_data):
             pip install -r requirements.txt
             
             # Run training
-            python train.py
+            python main.py
         "'''
         
         container_kwargs = {
             'image': docker_image,
-            # 'command': 'bash -c "cd /workspace && pip install -r requirements.txt && python train.py"',
+            # 'command': 'bash -c "cd /workspace && pip install -r requirements.txt && python main.py"',
             'command': command,
             'volumes': volumes,
             'detach': True,

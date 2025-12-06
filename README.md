@@ -6,7 +6,7 @@ A simple web application for managing and queuing machine learning training jobs
 
 ## Features
 
-- Upload training jobs as ZIP files containing `dataset`, `train.py`, and `requirements.txt`
+- Upload training jobs as ZIP files containing `main.py`, `requirements.txt` and other files
 - Select GPU or CPU for training
 - Choose Docker image (`pytorch/pytorch:latest`, `tensorflow/tensorflow:latest`, etc.)
 - Automatic job queue management
@@ -120,17 +120,17 @@ your_model.zip
 │   ├── test/
 │   ├── val/
 │   └── ...
-├── train.py              # Training script
+├── main.py               # Training script
 └── requirements.txt      # Python dependencies
 ```
 
-**Important: Your `train.py` script should:**
+**Important: Your `main.py` script should:**
 
-- Read data from `./dataset/`
+- Read data from the same directory `./`
 - Save trained models/outputs to `/output/`
 - Use standard print statements for logging (they'll appear in real-time)
 
-Example `train.py`:
+Example `main.py`:
 
 ```python
 import torch
