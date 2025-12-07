@@ -90,7 +90,7 @@ async def create_job(
     # Save uploaded file in chunks to avoid memory issues
     upload_path = f"{UPLOADS_DIR}/{job_id}.zip"
     async with aiofiles.open(upload_path, "wb") as f:
-        while chunk := await file.read(1024 * 1024):  # Read 1MB at a time
+        while chunk := await file.read(10 * 1024 * 1024):  # Read 10MB at a time
             await f.write(chunk)
     
     # Create job metadata
