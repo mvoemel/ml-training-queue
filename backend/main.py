@@ -11,6 +11,9 @@ from datetime import datetime
 from typing import Optional
 import pynvml
 import aiofiles
+import zipfile
+from pathlib import Path
+import io
 
 app = FastAPI()
 
@@ -239,19 +242,31 @@ async def cancel_job(job_id: str):
 @app.get("/api/jobs/{job_id}/download")
 async def download_job_output(job_id: str):
     """Download trained model"""
-    output_dir = f"{OUTPUTS_DIR}/{job_id}"
+    output_dir = Path(f"{OUTPUTS_DIR}/{job_id}")
     
-    if not os.path.exists(output_dir):
+    if not output_dir.exists():
         raise HTTPException(status_code=404, detail="Output not found")
     
-    # Create zip of output directory
-    zip_path = f"{OUTPUTS_DIR}/{job_id}.zip"
-    shutil.make_archive(f"{OUTPUTS_DIR}/{job_id}", "zip", output_dir)
+    def generate_zip():
+        # Create an in-memory buffer for streaming
+        zip_buffer = io.BytesIO()
+        
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+            for file_path in output_dir.rglob("*"):
+                if file_path.is_file():
+                    arcname = file_path.relative_to(output_dir)
+                    zip_file.write(file_path, arcname)
+        
+        zip_buffer.seek(0)
+        
+        # Stream the zip file in chunks
+        while chunk := zip_buffer.read(8192):
+            yield chunk
     
-    return FileResponse(
-        zip_path,
+    return StreamingResponse(
+        generate_zip(),
         media_type="application/zip",
-        filename=f"{job_id}_output.zip"
+        headers={"Content-Disposition": f"attachment; filename={job_id}_output.zip"}
     )
 
 
