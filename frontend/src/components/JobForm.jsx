@@ -40,7 +40,7 @@ function JobForm({ gpus, dockerImages, onClose, fetchJobs }) {
           );
           setUploadProgress(progress);
         },
-        timeout: 600_000, // 10 minute timeout
+        timeout: 7200000, // 2 hours timeout
       });
 
       setSelectedFile(null);
@@ -48,7 +48,9 @@ function JobForm({ gpus, dockerImages, onClose, fetchJobs }) {
       fetchJobs();
     } catch (error) {
       console.error("Error creating job:", error);
-      alert("Error creating job");
+      alert(
+        `Error creating job: ${error.response?.data?.detail || error.message}`
+      );
     } finally {
       setUploading(false);
       setUploadProgress(0);

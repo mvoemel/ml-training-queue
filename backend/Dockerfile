@@ -13,4 +13,9 @@ COPY . .
 
 RUN mkdir -p /app/data/uploads /app/data/jobs /app/data/outputs
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--timeout-keep-alive", "3600"]
+CMD ["uvicorn", "main:app", \
+     "--host", "0.0.0.0", \
+     "--port", "8000", \
+     "--timeout-keep-alive", "3600", \
+     "--timeout-graceful-shutdown", "3600", \
+     "--limit-max-requests", "10000"]
